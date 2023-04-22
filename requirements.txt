@@ -1,0 +1,4 @@
+progressbar-latest==2.4
+requests==2.20.0
+Unidecode==1.0.22
+closeio==2.0
