@@ -4,7 +4,7 @@ reads the CSV data, processes it, injects it using Close API
 
 By Sebastian Moncada Duque
 """
-
+import argparse
 import csv
 import json
 from closeio_api import Client
@@ -59,7 +59,7 @@ def group_contacts_by_lead(leads_data, leads_names, headers):
 
 def post_leads(leads_grouped):
     """Post the given list of leads to the Close's API """
-    api = Client('api_5Dsq0sNtw1TwyiRPuMjylP.2BJZs6G9AQBEh5XnppxDUt')
+    api = Client(API_KEY)
     for lead in leads_grouped:
         resp = api.post('lead', data=lead)
         print(resp["name"], resp["id"])
@@ -82,7 +82,7 @@ def clean_data(data):
 
 def get_leads_founded_between_2_dates(start_date, finish_date):
     """get the name of the leads that were founded between a given range"""
-    api = Client('api_5Dsq0sNtw1TwyiRPuMjylP.2BJZs6G9AQBEh5XnppxDUt')
+    api = Client(API_KEY)
 
     params = {
         "limit": None,
@@ -146,7 +146,7 @@ def segment_leads_by_state(data, _states):
     """Segment Leads by US States and write a CSV file with the report of the revenue"""
     output = []
     for state in _states:
-        api = Client('api_5Dsq0sNtw1TwyiRPuMjylP.2BJZs6G9AQBEh5XnppxDUt')
+        api = Client(API_KEY)
         #filters to get the leads from a specific state and where the revenue is greater than 0
         params = {
             "limit": None,
@@ -237,10 +237,19 @@ def segment_leads_by_state(data, _states):
         file_writer.writerows(output)
     
 if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser(description='Import leads from CSV file')
+    parser.add_argument('--api-key', '-k', required=True, help='API Key')
+    args = parser.parse_args()
+    API_KEY = args.api_key
+    
     headers, data = import_csv_data('MOCK_DATA.csv')
     cleaned_data = clean_data(data)
     leads_list, states = get_leads_names_and_states(cleaned_data)
+    """
     leads = group_contacts_by_lead(cleaned_data, leads_list, headers)
     post_leads(leads)
+    """
     print(get_leads_founded_between_2_dates("1990-01-01", "2000-01-01"))
     segment_leads_by_state(cleaned_data, states)
+    
